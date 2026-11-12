@@ -1,7 +1,19 @@
 #!/usr/bin/env python3
 import socket, json, time, threading
 from colorama import Fore, init
+import requests
+from datetime import datetime
+
 init(autoreset=True)
+
+def send_to_dashboard(proto, msg, cls):
+    try:
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        requests.post('http://127.0.0.1:8080/api/log', json={
+            't': now, 'proto': proto, 'msg': msg, 'cls': cls
+        }, timeout=0.5)
+    except:
+        pass
 
 def read_original_uid() -> str:
     s = socket.socket()
@@ -50,4 +62,17 @@ print('[*] Step 1: Reading original card UID...')
 original_uid = read_original_uid()
 print(f'[*] Captured UID: {original_uid}')
 print('[*] Step 2: Starting clone tag...')
+
+# 1. Tạo một hàm chạy vòng lặp 5 giây để báo lên Dashboard
+def dashboard_loop():
+    while True:
+        send_to_dashboard('RFID', f'CLONING Tag broadcasting UID={original_uid}', 'NORMAL')
+        import time
+        time.sleep(5)
+
+# 2. Khởi chạy vòng lặp đó ở một luồng ngầm (daemon thread)
+import threading
+threading.Thread(target=dashboard_loop, daemon=True).start()
+
+# 3. Khởi động server thẻ giả (hàm này sẽ chạy 24/24 ở luồng chính)
 CloneTag(original_uid).run()

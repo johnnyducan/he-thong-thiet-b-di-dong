@@ -1,0 +1,82 @@
+[
+  {
+    "ts": "08:10:13.195",
+    "proto": "RFID",
+    "uid": "A1B2C3D4E5"
+  },
+  {
+    "ts": "08:10:13.195",
+    "proto": "NFC",
+    "uid": "04A1B2C3D4E5F6",
+    "ndef": [
+      {
+        "type": "URI",
+        "value": "https://iotlab.edu.vn/checkin"
+      }
+    ]
+  },
+  {
+    "ts": "08:10:14.204",
+    "proto": "RFID",
+    "uid": "A1B2C3D4E5"
+  },
+  {
+    "ts": "08:10:14.204",
+    "proto": "NFC",
+    "uid": "04A1B2C3D4E5F6",
+    "ndef": [
+      {
+        "type": "URI",
+        "value": "https://iotlab.edu.vn/checkin"
+      }
+    ]
+  },
+  {
+    "ts": "08:10:15.211",
+    "proto": "RFID",
+    "uid": "A1B2C3D4E5"
+  },
+  {
+    "ts": "08:10:15.211",
+    "proto": "NFC",
+    "uid": "04A1B2C3D4E5F6",
+    "ndef": [
+      {
+        "type": "TEXT",
+        "value": "He thong da cap nhat. Truy cap: bit.ly/fake"
+      }
+    ]
+  },
+  {
+    "ts": "08:10:16.218",
+    "proto": "RFID",
+    "uid": "A1B2C3D4E5"
+  },
+  {
+    "ts": "08:10:16.218",
+    "proto": "NFC",
+    "uid": "04A1B2C3D4E5F6",
+    "ndef": [
+      {
+        "type": "TEXT",
+        "value": "He thong da cap nhat. Truy cap: bit.ly/fake"
+      }
+    ]
+  },
+  {
+    "ts": "08:10:17.237",
+    "proto": "RFID",
+    "uid": "A1B2C3D4E5"
+  },
+  {
+    "ts": "08:10:17.237",
+    "proto": "NFC",
+    "uid": "04A1B2C3D4E5F6",
+    "ndef": [
+      {
+        "type": "TEXT",
+        "value": "He thong da cap nhat. Truy cap: bit.ly/fake"
+      }
+    ]
+  }
+]
