@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import socket, json, time, threading
+import requests
 from datetime import datetime
 from colorama import Fore, init
 init(autoreset=True)
@@ -27,11 +28,13 @@ class AccessControlServer:
 
     def handle(self, conn, addr):
         try:
+            import requests # Đảm bảo thư viện requests được nạp
             data = conn.recv(512)
             req = json.loads(data.decode())
             uid = req.get('uid', '')
             ts = req.get('timestamp', 0)
             now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            
             if uid in CARD_DB and CARD_DB[uid]['active']:
                 card = CARD_DB[uid]
                 resp = {
@@ -46,7 +49,21 @@ class AccessControlServer:
                 resp = {'status': 'DENIED', 'msg': f'UID {uid} not authorized!'}
                 entry = f"{now} DENIED uid={uid}"
                 print(f"{Fore.RED}[AC] {entry}")
+            
             access_log.append(entry)
+            
+            # --- ĐOẠN CODE THÊM VÀO ĐỂ ĐẨY EVENT LÊN DASHBOARD ---
+            try:
+                requests.post('http://127.0.0.1:8080/api/log', json={
+                    't': now,
+                    'proto': 'RFID',
+                    'msg': entry,
+                    'cls': 'GRANTED' if 'GRANTED' in entry else 'DENIED'
+                }, timeout=1)
+            except:
+                pass # Bỏ qua nếu chưa bật Dashboard để không làm sập Server
+            # -----------------------------------------------------
+            
             conn.send(json.dumps(resp).encode())
         except Exception as e:
             print(f"{Fore.RED}[AC] Error: {e}")

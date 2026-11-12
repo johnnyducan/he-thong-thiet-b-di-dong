@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import socket, json, time, struct, threading
 import ndef
+import requests
+from datetime import datetime
 from colorama import Fore, init
 init(autoreset=True)
 
@@ -100,6 +102,22 @@ class NFCTagServer:
                         self.tag.write_page(page_start + i // 4, chunk)
                     resp = {'status': 'WRITTEN', 'bytes': len(new_ndef)}
                     print(f"{Fore.RED}[NFC TAG] NDEF OVERWRITTEN by {addr}")
+                    
+                    # --- ĐOẠN CODE THÊM VÀO ĐỂ ĐẨY EVENT LÊN DASHBOARD ---
+                    try:
+                        import requests
+                        from datetime import datetime
+                        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        requests.post('http://127.0.0.1:8080/api/log', json={
+                            't': now,
+                            'proto': 'NFC',
+                            'msg': 'NDEF INJECTED (Overwritten)',
+                            'cls': 'INJECT'
+                        }, timeout=1)
+                    except:
+                        pass
+                    # -----------------------------------------------------
+                    
                 else:
                     resp = {'status': 'ERROR', 'msg': 'Unknown NFC command'}
                 conn.send(json.dumps(resp).encode() + b'\n')
